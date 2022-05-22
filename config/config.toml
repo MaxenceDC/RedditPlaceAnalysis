@@ -1,0 +1,8 @@
+[files]
+full = "data/rplace.csv"
+sample = "data/sampleplace.csv"
+
+[hashes]
+hashes = [
+    "bCrZRP7T31V14qwiWNzeBDKckEr+7q5aWwtYi/xnGSI57DwO4pWc5Ce1axjS3yNhF9wvmA2THtL/lwbIIeF69A==",
+]
