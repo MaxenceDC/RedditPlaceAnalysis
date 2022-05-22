@@ -2,4 +2,5 @@
 /.vscode
 /.git
 /img/*
+!/img/original.png
 /data/*

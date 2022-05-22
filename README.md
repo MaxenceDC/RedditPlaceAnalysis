@@ -8,3 +8,18 @@ I Found my hash thanks to [this website](http://kisielo85.cba.pl)
 
 My hash:
 `bCrZRP7T31V14qwiWNzeBDKckEr+7q5aWwtYi/xnGSI57DwO4pWc5Ce1axjS3yNhF9wvmA2THtL/lwbIIeF69A==`
+
+## Todo
+
+* [ ] Add a `--help` option
+* [ ] Add a `--version` option
+* [ ] Add a `--verbose` option
+* [ ] Add a `--heatmap` option
+* [ ] Add a `--pixelsize` option
+* [ ] Add a `--userhash` option
+* [ ] Add a `--user` option
+* [ ] Add a `--background_opacity` option
+* [ ] Implement the sorting of the pixels by their time of placement
+* [ ] Implement an algorithm to find the user's hash
+* [ ] Implement the configuration file
+* [ ] Implement the possibility to work with multiple user's hashes or names
