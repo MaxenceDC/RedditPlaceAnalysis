@@ -4,3 +4,4 @@
 /img/*
 !/img/original.png
 /data/*
+!/data/sampleplace.csv

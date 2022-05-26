@@ -7,8 +7,7 @@ use std::time::Instant;
 
 // const HASH_6MAXENCE: &str =
 // "bCrZRP7T31V14qwiWNzeBDKckEr+7q5aWwtYi/xnGSI57DwO4pWc5Ce1axjS3yNhF9wvmA2THtL/lwbIIeF69A==";
-const HASH_BEST_USER: &str =
-    "yVbZRWEzQmZ25gGtDsWsdWgqjKYJgkhG+DRZHjOVj12ZakAtXxAsZoHR5JdFYyohfzj0lYMRpTsXKbK5agH09Q==";
+const HASH_BEST_USER: &str = "+UV64";
 const NUMBER_OF_LINES: u32 = 160_353_105;
 const DATA_PATH: &str = "data/rplace.csv";
 // const DATA_PATH: &str = "data/sampleplace.csv";
