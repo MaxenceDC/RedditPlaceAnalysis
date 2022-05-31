@@ -29,7 +29,7 @@ struct Pixel {
 
 impl Pixel {
     fn new(x: u32, y: u32, color: String) -> Pixel {
-        let reghex = Regex::new(r"#[0-9a-fA-F]{6}").unwrap();
+        let reghex = Regex::new(r"^#?[0-9a-fA-F]{6}$").unwrap();
         if !reghex.is_match(&color) {
             panic!("Invalid color: {}", color);
         }
@@ -64,8 +64,8 @@ fn main() -> io::Result<()> {
 
         let line = line.unwrap();
         let values = line.split(',').collect::<Vec<&str>>();
-        let x = values[3].to_string().replace('\"', "").parse().unwrap_or(0);
-        let y = values[4].to_string().replace('\"', "").parse().unwrap_or(0);
+        let x = values[3].to_string().replace('"', "").parse().unwrap_or(0);
+        let y = values[4].to_string().replace('"', "").parse().unwrap_or(0);
         coords[x as usize][y as usize].2 += 1;
 
         if line.contains(HASH_TEST_USER) {
