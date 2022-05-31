@@ -5,3 +5,4 @@
 !/img/original.png
 /data/*
 !/data/sampleplace.csv
+rustfmt.toml
