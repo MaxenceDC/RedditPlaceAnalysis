@@ -52,7 +52,8 @@ fn main() -> io::Result<()> {
 
     let dataset = File::open(dataset_path).unwrap();
     let bufreader = BufReader::new(dataset);
-    let mut img_buf: RgbaImage = ImageBuffer::new(img_dim.width, img_dim.height);
+    let mut img_buf: RgbaImage =
+        ImageBuffer::new(img_dim.width, img_dim.height);
     let mut coords: Coordinates = coords_vec(img_dim.width, img_dim.height);
     let mut placed_pixels: Vec<Pixel> = vec![];
 
