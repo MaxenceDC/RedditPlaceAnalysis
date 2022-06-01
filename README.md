@@ -1,10 +1,17 @@
 # Reddit Place Analysis
 
-> With Rust™
+> Made using Rust™ 🚀
 
-Download the full r/place dataset [here](https://placedata.reddit.com/data/canvas-history/2022_place_canvas_history.csv.gzip).
+This is the ultimate cli tool for the analysis of the two
+[Reddit Place](https://www.reddit.com/r/place/) events in 2022 and 2017.
 
-I Found my hash thanks to [this website](http://kisielo85.cba.pl)
+Download the full r/place dataset
+[here](https://placedata.reddit.com/data/canvas-history/2022_place_canvas_history.csv.gzip)
+and place it in the `data` directory.
+
+I (and you) can found your hash using [this website](http://kisielo85.cba.pl)
+(even though a future version of this tool will be able to do this
+automatically).
 
 My hash:
 `bCrZRP7T31V14qwiWNzeBDKckEr+7q5aWwtYi/xnGSI57DwO4pWc5Ce1axjS3yNhF9wvmA2THtL/lwbIIeF69A==`
