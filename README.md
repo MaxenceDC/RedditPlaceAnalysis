@@ -11,6 +11,7 @@ My hash:
 
 ## Todo
 
+* [ ] Comment the code
 * [ ] Add a `--help` option
 * [ ] Add a `--version` option
 * [ ] Add a `--verbose` option
@@ -20,11 +21,13 @@ My hash:
 * [ ] Add a `--user` option
 * [ ] Add a `--background_opacity` option
 * [ ] Implement the sorting of the pixels by their time of placement
-* [ ] Implement an algorithm to find the user's hash
+* [ ] Implement an algorithm to find the user's hash using user-collected
+      datasets
 * [ ] Implement the configuration file
 * [ ] Implement the possibility to work with multiple user's hashes or names
-* [ ] Use real paths instead of `&str`
+* [x] Use `Path` instead of `&str` for each paths
 * [ ] Reformat the place_pixels function
 * [ ] Considering using the
       [`piecewise-linear`](https://crates.io/crates/piecewise-linear) crate for
       the `get_heatmap_color` function
+* [ ] Add a timestamp for each pixel

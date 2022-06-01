@@ -3,20 +3,10 @@ use image::{GenericImageView, ImageBuffer, Rgb, RgbImage, Rgba, RgbaImage};
 use regex::Regex;
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
+use std::path::Path;
 use std::time::Instant;
 
-// const HASH_6MAXENCE: &str =
-// "bCrZRP7T31V14qwiWNzeBDKckEr+7q5aWwtYi/xnGSI57DwO4pWc5Ce1axjS3yNhF9wvmA2THtL/lwbIIeF69A==";
-const HASH_TEST_USER: &str =
-    "6wNblautrN+HX3ugQDgQboUMH4fYimqSezTsymY1w+vQl/uFDiHNqc0pA2BjBHAT6zww8iRX2ntGdqiZijBCYw==";
 const NUMBER_OF_LINES: u32 = 160_353_105;
-const DATA_PATH: &str = "data/rplace.csv";
-// const DATA_PATH: &str = "data/sampleplace.csv";
-const IMAGE_PATH: &str = "img/rplace.png";
-const HEATMAP_PATH: &str = "img/heatmap.png";
-const BACKGROUND_PATH: &str = "img/original.png";
-const IMAGE_DIM: (u32, u32) = (2000, 2000);
-const PIXEL_SIZE: u32 = 32;
 
 type Coordinates = Vec<Vec<(u32, u32, u32)>>;
 type RgbColor = (u8, u8, u8);
@@ -25,6 +15,11 @@ struct Pixel {
     x: u32,
     y: u32,
     color: String,
+}
+
+struct Dimensions {
+    width: u32,
+    height: u32,
 }
 
 impl Pixel {
@@ -38,16 +33,32 @@ impl Pixel {
 }
 
 fn main() -> io::Result<()> {
-    let dataset = File::open(DATA_PATH).unwrap();
-    let reader = BufReader::new(dataset);
-    let mut imgbuf: RgbaImage = ImageBuffer::new(IMAGE_DIM.0, IMAGE_DIM.1);
-    let mut coords: Coordinates = gen_vec_coords(IMAGE_DIM.0, IMAGE_DIM.1);
+    let now = Instant::now();
+
+    #[allow(unused_variables)]
+    let my_hash = "bCrZRP7T31V14qwiWNzeBDKckEr+7q5aWwtYi/xnGSI57DwO4pWc5Ce1axjS3yNhF9wvmA2THtL/lwbIIeF69A==";
+    let test_hash = "6wNblautrN+HX3ugQDgQboUMH4fYimqSezTsymY1w+vQl/uFDiHNqc0pA2BjBHAT6zww8iRX2ntGdqiZijBCYw==";
+
+    let pixel_size = 16;
+
+    let original_image_path = Path::new("img/original.png");
+    let result_image_path = Path::new("img/rplace.png");
+    let dataset_path = Path::new("data/rplace.csv");
+    let heatmap_path = Path::new("img/heatmap.png");
+    let img_dim = Dimensions {
+        width: 2000,
+        height: 2000,
+    };
+
+    let dataset = File::open(dataset_path).unwrap();
+    let bufreader = BufReader::new(dataset);
+    let mut img_buf: RgbaImage = ImageBuffer::new(img_dim.width, img_dim.height);
+    let mut coords: Coordinates = coords_vec(img_dim.width, img_dim.height);
     let mut placed_pixels: Vec<Pixel> = vec![];
-    let start = Instant::now();
 
-    set_background(&mut imgbuf);
+    set_background(&mut img_buf, original_image_path);
 
-    for (counter, line) in reader.lines().skip(1).into_iter().enumerate() {
+    for (counter, line) in bufreader.lines().skip(1).into_iter().enumerate() {
         if counter % 500_000 == 0 {
             io::stdout().flush()?;
             let percentage = counter as f64 / NUMBER_OF_LINES as f64 * 100.0;
@@ -68,7 +79,7 @@ fn main() -> io::Result<()> {
         let y = values[4].to_string().replace('\"', "").parse().unwrap_or(0);
         coords[x as usize][y as usize].2 += 1;
 
-        if line.contains(HASH_TEST_USER) {
+        if line.contains(test_hash) {
             let color = values[2].to_string();
             placed_pixels.push(Pixel::new(x, y, color));
         }
@@ -76,22 +87,26 @@ fn main() -> io::Result<()> {
     io::stdout().flush()?;
     println!("\r{}% processed.", "100".truecolor(0, 255, 0));
     println!("Here are the placed pixels:");
-    place_pixels(&placed_pixels, &mut imgbuf);
+    place_pixels(&placed_pixels, pixel_size, &mut img_buf);
     println!("Placed {} pixels.", &placed_pixels.len());
-    imgbuf.save(IMAGE_PATH).unwrap();
-    create_heatmap(&mut coords);
-    println!("Result Image at : {IMAGE_PATH} | Heatmap at : {HEATMAP_PATH}");
-    println!("Process took {:?} to execute.", start.elapsed());
+    img_buf.save(result_image_path).unwrap();
+    create_heatmap(&mut coords, heatmap_path, img_dim);
+    println!(
+        "Result Image at : {} | Heatmap at : {}",
+        result_image_path.display(),
+        heatmap_path.display()
+    );
+    println!("Process took {:?} to execute.", now.elapsed());
 
     Ok(())
 }
 
-fn set_background(imgbuf: &mut RgbaImage) {
-    let placebuf = image::open(BACKGROUND_PATH).unwrap();
-    for i in 0..IMAGE_DIM.0 {
-        for j in 0..IMAGE_DIM.1 {
-            let pixel = placebuf.get_pixel(i, j);
-            imgbuf.put_pixel(
+fn set_background(img_buf: &mut RgbaImage, source_img: &Path) {
+    let background_img = image::open(source_img).unwrap();
+    for i in 0..img_buf.width() {
+        for j in 0..img_buf.height() {
+            let pixel = background_img.get_pixel(i, j);
+            img_buf.put_pixel(
                 i,
                 j,
                 Rgba([pixel.0[0], pixel.0[1], pixel.0[2], 20]),
@@ -108,7 +123,7 @@ fn hex_to_rgb(hex: &str) -> (u8, u8, u8) {
     (r, g, b)
 }
 
-fn place_pixel(imgbuf: &mut RgbaImage, pixel: &Pixel, mut size: u32) {
+fn place_pixel(img_buf: &mut RgbaImage, pixel: &Pixel, mut size: u32) {
     if size == 0 {
         size = 1;
     }
@@ -123,20 +138,24 @@ fn place_pixel(imgbuf: &mut RgbaImage, pixel: &Pixel, mut size: u32) {
 
     for i in startx..=endx {
         for j in starty..=endy {
-            if i >= IMAGE_DIM.0 as i32
-                || j >= IMAGE_DIM.1 as i32
+            if i >= img_buf.width() as i32
+                || j >= img_buf.height() as i32
                 || i < 0
                 || j < 0
             {
                 continue;
             }
-            imgbuf.put_pixel(i as u32, j as u32, Rgba([r, g, b, 255]));
+            img_buf.put_pixel(i as u32, j as u32, Rgba([r, g, b, 255]));
         }
     }
 }
 
-fn create_heatmap(coords: &mut Coordinates) {
-    let mut imgbuf: RgbImage = ImageBuffer::new(IMAGE_DIM.0, IMAGE_DIM.1);
+fn create_heatmap(
+    coords: &mut Coordinates,
+    heatmap_img: &Path,
+    img_dim: Dimensions,
+) {
+    let mut img_buf: RgbImage = ImageBuffer::new(img_dim.width, img_dim.height);
     let max = 1000;
     // let max = {
     //     let mut curr = 0;
@@ -153,15 +172,15 @@ fn create_heatmap(coords: &mut Coordinates) {
     for i in coords.iter() {
         for coord in i {
             let (r, g, b) = get_heatmap_color(coord.2, max);
-            imgbuf.put_pixel(coord.0, coord.1, Rgb([r, g, b]));
+            img_buf.put_pixel(coord.0, coord.1, Rgb([r, g, b]));
         }
     }
 
-    imgbuf.save(HEATMAP_PATH).unwrap();
+    img_buf.save(heatmap_img).unwrap();
 }
 
 // Blue -> Green -> Red
-// MAYBE: Use the piecewise-linear crate, or implement a same functionality?
+// ? Use the piecewise-linear crate, or implement a same functionality?
 fn get_heatmap_color(value: u32, max: u32) -> RgbColor {
     fn round_to_u8(num: f32) -> u8 {
         num.round() as u8
@@ -186,35 +205,8 @@ fn get_heatmap_color(value: u32, max: u32) -> RgbColor {
     }
 }
 
-// White -> Blue -> Orange -> Red
-#[allow(dead_code)]
 // TODO: Refactor this function
-fn get_heatmap_color_white_to_red(n: u32, max: u32) -> RgbColor {
-    let (r, g, b);
-    let factor = n as f32 / max as f32;
-
-    if n <= max / 3 {
-        r = ((-3.0 * factor + 1.0) * 255.0).round() as u8;
-        g = ((-factor + 1.0) * 255.0).round() as u8;
-        b = 255
-    } else if n <= 2 * (max / 3) {
-        r = ((3.0 * factor - 1.0) * 255.0).round() as u8;
-        g = ((-factor + 1.0) * 255.0).round() as u8;
-        b = ((-3.0 * factor + 2.0) * 255.0).round() as u8;
-    } else if n <= max {
-        r = 255;
-        g = ((-factor + 1.0) * 255.0).round() as u8;
-        b = 0;
-    } else {
-        r = 255;
-        g = 0;
-        b = 0;
-    }
-
-    (r, g, b)
-}
-
-fn place_pixels(pixels: &[Pixel], imgbuf: &mut RgbaImage) {
+fn place_pixels(pixels: &[Pixel], pixel_size: u32, img_buf: &mut RgbaImage) {
     for pixel in pixels.iter() {
         let (r, g, b) = hex_to_rgb(&pixel.color);
         println!("  x: {}, y: {}", pixel.x, pixel.y);
@@ -223,11 +215,11 @@ fn place_pixels(pixels: &[Pixel], imgbuf: &mut RgbaImage) {
             pixel.color.truecolor(r, g, b),
             "  ".on_truecolor(r, g, b)
         );
-        place_pixel(imgbuf, pixel, PIXEL_SIZE);
+        place_pixel(img_buf, pixel, pixel_size);
     }
 }
 
-fn gen_vec_coords(width: u32, height: u32) -> Coordinates {
+fn coords_vec(width: u32, height: u32) -> Coordinates {
     let mut coords: Coordinates = vec![];
 
     for i in 0..width {
