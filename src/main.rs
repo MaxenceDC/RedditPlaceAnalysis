@@ -134,14 +134,7 @@ fn place_pixel(img_buf: &mut RgbaImage, pixel: &Pixel, mut size: u32) {
 
   for i in startx..=endx {
     for j in starty..=endy {
-      if i >= img_buf.width() as i32
-        || j >= img_buf.height() as i32
-        || i < 0
-        || j < 0
-      {
-        continue;
-      }
-      img_buf.put_pixel(i as u32, j as u32, Rgba([r, g, b, 255]));
+      img_buf.put_pixel(i.max(0).min(img_buf.width()) as u32, j.max(0).min(img_buf.height()) as u32, Rgba([r, g, b, 255]));
     }
   }
 }
