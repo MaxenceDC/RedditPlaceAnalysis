@@ -33,7 +33,7 @@ My hash:
 * [ ] Implement the configuration file
 * [ ] Implement the possibility to work with multiple user's hashes or names
 * [x] Use `Path` instead of `&str` for each paths
-* [x] Reformat the place_pixels function
+* [ ] Reformat the place_pixels function
 * [ ] Considering using the
       [`piecewise-linear`](https://crates.io/crates/piecewise-linear) crate for
       the `get_heatmap_color` function
