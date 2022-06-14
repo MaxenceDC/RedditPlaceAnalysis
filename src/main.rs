@@ -127,14 +127,14 @@ fn place_pixel(img_buf: &mut RgbaImage, pixel: &Pixel, mut size: u32) {
   let paddingleft = ((size as f32 - 1.0) / 2.0).ceil() as u32;
   let paddingright = ((size as f32 - 1.0) / 2.0).floor() as u32;
 
-  let startx = pixel.x as i32 - paddingleft as i32;
-  let endx = pixel.x as i32 + paddingright as i32;
-  let starty = pixel.y as i32 - paddingleft as i32;
-  let endy = pixel.y as i32 + paddingright as i32;
+  let startx = (pixel.x as i32 - paddingleft as i32).max(0) as u32;
+  let endx = (pixel.x as i32 + paddingright as i32).min(img_buf.width()) as u32;
+  let starty = (pixel.y as i32 - paddingleft as i32).max(0) as u32;
+  let endy = (pixel.y as i32 + paddingright as i32).min(img_buf.height()) as u32;
 
   for i in startx..=endx {
     for j in starty..=endy {
-      img_buf.put_pixel(i.max(0).min(img_buf.width()) as u32, j.max(0).min(img_buf.height()) as u32, Rgba([r, g, b, 255]));
+      img_buf.put_pixel(i, j, Rgba([r, g, b, 255]));
     }
   }
 }
